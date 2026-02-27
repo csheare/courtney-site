@@ -1,0 +1,44 @@
+- date: "Jan 2026"
+  text: "PhD defended! Thesis: Generative Evolutionary Models for Variant Effect Prediction, Harvard University"
+
+- date: "December 2025"
+  text: "LOL-EVE published in Proceedings of Machine Learning Research from MLCB!"
+
+- date: "November 2025"
+  text: "popEVE published in Nature Genetics"
+
+- date: "Oct 2025"
+  text: "Starting as Research Engineer at Google DeepMind, London — 9 month visit to the Genomics Team within the Science Unit"
+
+- date: "Sep 2025"
+  text: "Spotlight Talk at MLCB 2025: Learning a language model across promoter evolutionary sequences for variant effect prediction"
+
+- date: "Jul 2025"
+  text: "Best Paper Award at ICML GenBio Workshop for LOL-EVE! Also gave a spotlight talk at the workshop"
+
+- date: "Jun 2025"
+  text: "Talk at Cambridge Wellcome Trust AIxBio on promoter variant effect prediction"
+
+- date: "Spring 2025"
+  text: "TF for Marinka Zitnik's AI in Biomedicine course at HMS; gave tutorial on Protein Language Models for Clinical Variant Effect Prediction"
+
+- date: "Nov 2024"
+  text: "Primer talk at Broad Medical Population and Genomics Group: Can we computationally predict variant effects so we can do fewer experiments???"
+
+- date: "Jun 2024"
+  text: "Talk at Broad MPG: Learning a language model across promoter evolutionary sequences for variant effect prediction"
+
+- date: "Apr 2024"
+  text: "Guest lecture at MIT for Machine Learning for Healthcare with Sarah Gurev: Methods for Genomics in Medicine"
+
+- date: "2023"
+  text: "NSF Graduate Research Fellowship (GRFP) recipient"
+
+- date: "Aug 2021"
+  text: "Starting PhD at Harvard in the SSQB (Systems, Synthetic, and Quantitative Biology) program"
+
+- date: "Aug 2020"
+  text: "Starting as Bioinformatics Engineer at CRISPR Therapeutics, Boston"
+
+- date: "Aug 2019"
+  text: "Starting as Bioinformatics Engineer at Zymergen, Emeryville CA"

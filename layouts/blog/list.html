@@ -1,0 +1,40 @@
+{{ define "main" }}
+<div class="container">
+  <div class="section-title" style="margin-bottom:2rem;">blog</div>
+
+  <div class="blog-filters" id="filters">
+    <button class="filter-btn active" data-filter="all" onclick="filterPosts('all', this)">all</button>
+    <button class="filter-btn science" data-filter="science" onclick="filterPosts('science', this)">science</button>
+    <button class="filter-btn sewing" data-filter="sewing" onclick="filterPosts('sewing', this)">sewing</button>
+  </div>
+
+  <ul class="post-list" id="post-list">
+    {{ range (where .Site.RegularPages "Section" "blog") }}
+    <li class="post-item" data-tags="{{ range .Params.tags }}{{ lower . }} {{ end }}">
+      <div class="post-meta">
+        <span class="post-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        {{ range .Params.tags }}
+        <span class="post-tag {{ lower . }}">{{ . }}</span>
+        {{ end }}
+      </div>
+      <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+      <p class="post-excerpt">{{ .Summary | plainify | truncate 180 }}</p>
+    </li>
+    {{ end }}
+  </ul>
+</div>
+
+<script>
+function filterPosts(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.post-item').forEach(item => {
+    if (tag === 'all' || item.dataset.tags.includes(tag)) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+</script>
+{{ end }}

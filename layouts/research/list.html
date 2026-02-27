@@ -1,0 +1,20 @@
+{{ define "main" }}
+<div class="container">
+  <div class="section-title" style="margin-bottom:2rem;">research</div>
+  <div class="research-grid">
+    {{ range (where .Site.RegularPages "Section" "research") }}
+    <div class="research-item">
+      <div class="venue">{{ .Params.venue }}</div>
+      <h3>{{ .Title }}</h3>
+      <p class="authors">{{ .Params.authors | markdownify }}</p>
+      {{ with .Params.abstract }}<p style="font-size:0.85rem; color:#555; margin-top:0.5rem; line-height:1.7;">{{ . }}</p>{{ end }}
+      <div class="paper-links" style="margin-top:0.8rem;">
+        {{ with .Params.paper }}<a class="paper-link" href="{{ . }}" target="_blank">paper</a>{{ end }}
+        {{ with .Params.code }}<a class="paper-link" href="{{ . }}" target="_blank">code</a>{{ end }}
+        {{ with .Params.poster }}<a class="paper-link" href="{{ . }}" target="_blank">poster</a>{{ end }}
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

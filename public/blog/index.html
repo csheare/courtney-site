@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogs · Courtney A. Shearer</title>
+  <meta name="description" content="Machine Learning Scientist in Computational Biology">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="site-name" href="/">Courtney A. Shearer</a>
+    
+    <a href="/" >about</a>
+    
+    <a href="/research/" >research</a>
+    
+    <a href="/blog/" class="active">blog</a>
+    
+    <a href="/cv/" >cv</a>
+    
+    <a href="/publications/" >publications</a>
+    
+  </div>
+</nav>
+
+<div class="page-content">
+  
+<div class="container">
+  <div class="section-title" style="margin-bottom:2rem;">blog</div>
+
+  <div class="blog-filters" id="filters">
+    <button class="filter-btn active" data-filter="all" onclick="filterPosts('all', this)">all</button>
+    <button class="filter-btn science" data-filter="science" onclick="filterPosts('science', this)">science</button>
+    <button class="filter-btn sewing" data-filter="sewing" onclick="filterPosts('sewing', this)">sewing</button>
+  </div>
+
+  <ul class="post-list" id="post-list">
+    
+    <li class="post-item" data-tags="">
+      <div class="post-meta">
+        <span class="post-date">Jan 1, 0001</span>
+        
+      </div>
+      <h2><a href="http://localhost:1313/blog/linen-jacket/"></a></h2>
+      <p class="post-excerpt"></p>
+    </li>
+    
+    <li class="post-item" data-tags="">
+      <div class="post-meta">
+        <span class="post-date">Jan 1, 0001</span>
+        
+      </div>
+      <h2><a href="http://localhost:1313/blog/systems-biology/"></a></h2>
+      <p class="post-excerpt"></p>
+    </li>
+    
+  </ul>
+</div>
+
+<script>
+function filterPosts(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.post-item').forEach(item => {
+    if (tag === 'all' || item.dataset.tags.includes(tag)) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</div>
+
+<footer>
+  <div class="container">
+    <span>© 2026 Courtney A. Shearer</span>
+    <span>Built with <a href="https://gohugo.io">Hugo</a> · Hosted on GitHub Pages</span>
+  </div>
+</footer>
+
+</body>
+</html>

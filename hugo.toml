@@ -1,0 +1,42 @@
+baseURL = "https://courtneyshearer.com/"
+languageCode = "en-us"
+title = "Courtney A. Shearer"
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[params]
+  name = "Courtney A. Shearer"
+  description = "Machine Learning Scientist in Computational Biology"
+  email = "courtney.a.shearer@gmail.com"
+  github = "https://github.com/csheare"
+  twitter = "https://twitter.com/c_sheare"
+  linkedin = "https://www.linkedin.com/in/courtney-shearer"
+  scholar = "https://scholar.google.com/citations?user=ht6icboAAAAJ"
+  profileImage = "/img/prof_pic.jpg"
+
+[menu]
+  [[menu.main]]
+    name = "about"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "research"
+    url = "/research/"
+    weight = 2
+  [[menu.main]]
+    name = "blog"
+    url = "/blog/"
+    weight = 3
+  [[menu.main]]
+    name = "cv"
+    url = "/cv/"
+    weight = 4
+  [[menu.main]]
+    name = "publications"
+    url = "/publications/"
+    weight = 5
+
+[markup.goldmark.renderer]
+  unsafe = true

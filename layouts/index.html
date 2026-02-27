@@ -1,0 +1,89 @@
+{{ define "main" }}
+<div class="container">
+
+  {{/* ── Hero ── */}}
+  <div class="home-hero">
+    <div class="bio">
+      <h1>Howdy, I'm <em>Courtney.</em></h1>
+      <p>
+        I work on predictive modeling of biological sequences with applications in enzyme design, therapeutics, and variant effect prediction. I have a massive interest in determining if models are useful and/or building models that address real biological needs.
+        <p>
+        I am currently visiting at DeepMind with the Predictive Genomics Team. Previously I did my PhD with Harvard Systems Synthetic Biology under Debora Marks (2026). B.S. in Computer Science and Genetics from Clemson University (2019).
+        </p>
+    </p>
+      <p>
+         Outside of lab I bike, sew, run, spend time with my partner and our two beloved felines.
+      </p>
+      <div class="links">
+        <a href="{{ .Site.Params.scholar }}" target="_blank">google scholar</a>
+        <a href="{{ .Site.Params.github }}" target="_blank">github</a>
+        <a href="{{ .Site.Params.twitter }}" target="_blank">twitter</a>
+        <a href="{{ .Site.Params.linkedin }}" target="_blank">linkedin</a>
+        <a href="mailto:{{ .Site.Params.email }}">email</a>
+      </div>
+    </div>
+    <img class="profile-img" src="{{ .Site.Params.profileImage }}" alt="Courtney Shearer">
+  </div>
+
+  {{/* ── What's New ── */}}
+  <div class="section">
+    <div class="section-title">what's new</div>
+    <ul class="news-list">
+      {{ range .Site.Data.news }}
+      <li>
+        <span class="date">{{ .date }}</span>
+        <span>{{ .text | markdownify }}</span>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+
+  {{/* ── Recent Blog Posts ── */}}
+  <div class="section">
+    <div class="section-title">recent writing</div>
+    <ul class="post-list">
+      {{ range first 4 (where .Site.RegularPages "Section" "blog") }}
+      <li class="post-item">
+        <div class="post-meta">
+          <span class="post-date">{{ .Date.Format "Jan 2006" }}</span>
+          {{ range .Params.tags }}
+          <span class="post-tag {{ lower . }}">{{ . }}</span>
+          {{ end }}
+        </div>
+        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+        <p class="post-excerpt">{{ .Summary | plainify | truncate 140 }}</p>
+      </li>
+      {{ end }}
+    </ul>
+    <p style="margin-top:1.5rem; font-size:0.82rem;">
+      <a href="/blog/" style="color:var(--muted); border-bottom:1px solid var(--border); text-decoration:none;">
+        all posts →
+      </a>
+    </p>
+  </div>
+
+  {{/* ── Featured Research ── */}}
+  <div class="section">
+    <div class="section-title">selected research</div>
+    <div class="research-grid">
+      {{ range first 3 (where .Site.RegularPages "Section" "research") }}
+      <div class="research-item">
+        <div class="venue">{{ .Params.venue }}</div>
+        <h3>{{ .Title }}</h3>
+        <p class="authors">{{ .Params.authors | markdownify }}</p>
+        <div class="paper-links">
+          {{ with .Params.paper }}<a class="paper-link" href="{{ . }}" target="_blank">paper</a>{{ end }}
+          {{ with .Params.code }}<a class="paper-link" href="{{ . }}" target="_blank">code</a>{{ end }}
+        </div>
+      </div>
+      {{ end }}
+    </div>
+    <p style="margin-top:1.5rem; font-size:0.82rem;">
+      <a href="/research/" style="color:var(--muted); border-bottom:1px solid var(--border); text-decoration:none;">
+        all research →
+      </a>
+    </p>
+  </div>
+
+</div>
+{{ end }}

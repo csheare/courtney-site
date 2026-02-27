@@ -1,0 +1,20 @@
+{{ define "main" }}
+<div class="post-single">
+  <header>
+    <div style="margin-bottom:1rem;">
+      <a href="/blog/" style="font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); text-decoration:none;">← blog</a>
+    </div>
+    <h1>{{ .Title }}</h1>
+    <div class="post-info">
+      <span>{{ .Date.Format "January 2, 2006" }}</span>
+      {{ range .Params.tags }}
+      <span class="post-tag {{ lower . }}">{{ . }}</span>
+      {{ end }}
+      <span>{{ .ReadingTime }} min read</span>
+    </div>
+  </header>
+  <div class="content">
+    {{ .Content }}
+  </div>
+</div>
+{{ end }}

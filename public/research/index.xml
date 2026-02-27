@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Researches on Courtney A. Shearer</title>
+    <link>http://localhost:1313/research/</link>
+    <description>Recent content in Researches on Courtney A. Shearer</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/research/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>http://localhost:1313/research/optimal-design/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/research/optimal-design/</guid>
+      <description>&lt;!-- ---&#xA;title: &#34;Machine Learning Approaches for Optimal Experimental Design in Biological Systems&#34;&#xA;date: 2024-01-01&#xA;venue: &#34;In progress · Harvard SSQB&#34;&#xA;authors: &#34;**Courtney A. Shearer**, et al.&#34;&#xA;abstract: &#34;Developing active learning frameworks to minimize the number of experiments required to learn accurate models of biological systems, with applications to gene regulatory networks.&#34;&#xA;--- --&gt;</description>
+    </item>
+  </channel>
+</rss>
