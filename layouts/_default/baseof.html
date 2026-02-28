@@ -253,10 +253,12 @@
 
   // ── State persistence across page navigations ─────────────────────
   const STORE_KEY = 'bgState';
+  const STORE_VER = 3; // bump when saved shape changes
 
   function saveState() {
     try {
       sessionStorage.setItem(STORE_KEY, JSON.stringify({
+        v: STORE_VER,
         glows: glows.map(g => ({ x: g.x, y: g.y, vx: g.vx, vy: g.vy, r: g.r, alpha: g.alpha, baseAlpha: g.baseAlpha, dAlpha: g.dAlpha })),
         blobs: blobs.map(b => ({
           cx: b.cx, cy: b.cy, vx: b.vx, vy: b.vy,
@@ -272,6 +274,7 @@
       const raw = sessionStorage.getItem(STORE_KEY);
       if (!raw) return false;
       const s = JSON.parse(raw);
+      if (s.v !== STORE_VER) return false; // stale format — ignore
       if (s.glows && s.glows.length === GLOW_COUNT) glows = s.glows;
       if (s.blobs && s.blobs.length === BLOB_COUNT)
         blobs = s.blobs.map(b => ({ ...b, paired: null }));
