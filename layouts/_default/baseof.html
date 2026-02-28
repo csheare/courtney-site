@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
-  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta name="description" content="{{ with .Description }}{{ with .Description }}{{ . }}{{ else }}{{ $.Site.Params.description }}{{ end }}{{ else }}{{ .Site.Params.description }}{{ end }}">
   <link rel="stylesheet" href="/css/main.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
 </head>
 <body>
+
+<canvas id="bg-canvas"></canvas>
 
 <nav>
   <div class="container">
@@ -29,6 +31,278 @@
     <span>Built with <a href="https://gohugo.io">Hugo</a> · Hosted on GitHub Pages</span>
   </div>
 </footer>
+
+<script>
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  const GREY   = '140, 132, 120';
+  const ORANGE = '196, 110, 60';
+
+  function pickColor() { return Math.random() < 0.28 ? ORANGE : GREY; }
+
+  // ── Config ────────────────────────────────────────────────────────
+  const BLOB_COUNT = 38;
+  const GLOW_COUNT = 7;
+  const DRIFT      = 0.10;
+
+  let W, H, blobs, glows;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  // ── Glows ─────────────────────────────────────────────────────────
+  // Large soft radial gradients that drift slowly — a warm orange wash.
+
+  function makeGlow() {
+    const speed     = 0.04 + Math.random() * 0.70;   // very slow → fast
+    const angle     = Math.random() * Math.PI * 2;
+    const baseAlpha = 0.12 + Math.random() * 0.38;   // dim → vivid
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      r:  Math.min(W, H) * (0.22 + Math.random() * 0.50), // 22–72% of viewport
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      baseAlpha,
+      alpha:  baseAlpha,
+      dAlpha: (Math.random() < 0.5 ? 1 : -1) * (0.0003 + Math.random() * 0.0009),
+    };
+  }
+
+  function updateDrawGlow(g) {
+    g.x += g.vx;
+    g.y += g.vy;
+    // wrap smoothly off edges
+    const pad = g.r;
+    if (g.x < -pad)    g.x = W + pad;
+    if (g.x > W + pad) g.x = -pad;
+    if (g.y < -pad)    g.y = H + pad;
+    if (g.y > H + pad) g.y = -pad;
+
+    // pulse intensity
+    g.alpha += g.dAlpha;
+    const lo = g.baseAlpha * 0.45, hi = g.baseAlpha * 1.55;
+    if (g.alpha < lo || g.alpha > hi) { g.dAlpha *= -1; g.alpha = Math.max(lo, Math.min(hi, g.alpha)); }
+
+    const grad = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
+    grad.addColorStop(0,   `rgba(196, 110, 60, ${g.alpha})`);
+    grad.addColorStop(0.5, `rgba(196, 110, 60, ${g.alpha * 0.35})`);
+    grad.addColorStop(1,   `rgba(196, 110, 60, 0)`);
+
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // ── Blobs ─────────────────────────────────────────────────────────
+  // Each blob is a smooth closed curve through N perimeter points.
+  // The radius of each point oscillates slowly → organic "breathing".
+  // Drawn with Catmull-Rom → bezier conversion for silky smoothness.
+
+  function makeBlob() {
+    const r = 30 + Math.random() * 140;       // vary sizes: tiny to large
+    const N = 7  + Math.floor(Math.random() * 5); // 7–11 perimeter points
+    return {
+      cx: Math.random() * W,
+      cy: Math.random() * H,
+      r,
+      vx: (Math.random() - 0.5) * DRIFT,
+      vy: (Math.random() - 0.5) * DRIFT,
+      N,
+      // each perimeter point has its own radius multiplier that drifts
+      pts: Array.from({ length: N }, () => ({
+        v:  0.75 + Math.random() * 0.50,       // current radius multiplier
+        dv: (Math.random() - 0.5) * 0.0014,    // drift rate
+      })),
+      alpha: 0.15 + Math.random() * 0.14,
+      lw:    0.55 + Math.random() * 0.65,
+      color: pickColor(),
+      paired: null,   // { with: idx, life: frames }
+    };
+  }
+
+  // ── Pairing: blobs attract, lock, then unlock ──────────────────────
+  function tickPairings() {
+    for (const b of blobs) {
+      if (b.paired) {
+        b.paired.life--;
+        if (b.paired.life <= 0) b.paired = null;
+      }
+    }
+    // small chance each frame to pair two free blobs
+    if (Math.random() < 0.004) {
+      const free = blobs.map((b, i) => b.paired ? null : i).filter(i => i !== null);
+      if (free.length >= 2) {
+        const ia   = free[Math.floor(Math.random() * free.length)];
+        const rest = free.filter(i => i !== ia);
+        const ib   = rest[Math.floor(Math.random() * rest.length)];
+        const life = 280 + Math.floor(Math.random() * 360);
+        blobs[ia].paired = { with: ib, life };
+        blobs[ib].paired = { with: ia, life };
+      }
+    }
+  }
+
+  // ── Physics: repulsion + attraction + integrate ────────────────────
+  function updateBlobs() {
+    tickPairings();
+
+    // inter-blob forces
+    for (let i = 0; i < blobs.length; i++) {
+      for (let j = i + 1; j < blobs.length; j++) {
+        const a  = blobs[i], b = blobs[j];
+        const dx = b.cx - a.cx, dy = b.cy - a.cy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        const nx = dx / dist, ny = dy / dist;
+        // "just touching" distance using average blob radii
+        const touch = (a.r + b.r) * 0.82;
+
+        if (dist < touch) {
+          // repel — push apart proportional to overlap
+          const mag = (touch - dist) / touch * 0.018;
+          a.vx -= nx * mag;  a.vy -= ny * mag;
+          b.vx += nx * mag;  b.vy += ny * mag;
+        } else if (a.paired?.with === j) {
+          // attract — draw toward just-touching distance
+          const target = touch * 1.01;
+          if (dist > target) {
+            const mag = Math.min((dist - target) * 0.0009, 0.007);
+            a.vx += nx * mag;  a.vy += ny * mag;
+            b.vx -= nx * mag;  b.vy -= ny * mag;
+          }
+        }
+      }
+    }
+
+    // integrate each blob
+    for (const b of blobs) {
+      // stronger damping when locked close to partner (hovering feel)
+      let damp = 0.974;
+      if (b.paired) {
+        const partner = blobs[b.paired.with];
+        if (partner) {
+          const dx = partner.cx - b.cx, dy = partner.cy - b.cy;
+          if (Math.sqrt(dx * dx + dy * dy) < (b.r + partner.r) * 0.92) damp = 0.86;
+        }
+      }
+      b.vx *= damp;
+      b.vy *= damp;
+
+      // gentle nudge if blob has stalled mid-field
+      if (!b.paired && Math.sqrt(b.vx * b.vx + b.vy * b.vy) < DRIFT * 0.25) {
+        const a = Math.random() * Math.PI * 2;
+        b.vx += Math.cos(a) * DRIFT * 0.12;
+        b.vy += Math.sin(a) * DRIFT * 0.12;
+      }
+
+      b.cx += b.vx;
+      b.cy += b.vy;
+
+      const pad = b.r * 1.6;
+      if (b.cx < -pad)    b.cx = W + pad;
+      if (b.cx > W + pad) b.cx = -pad;
+      if (b.cy < -pad)    b.cy = H + pad;
+      if (b.cy > H + pad) b.cy = -pad;
+
+      for (const p of b.pts) {
+        p.v += p.dv;
+        if (p.v < 0.55 || p.v > 1.30) p.dv *= -1;
+      }
+    }
+  }
+
+  // Catmull-Rom spline through a closed set of points, via bezier conversion
+  function drawBlob(b) {
+    const coords = b.pts.map((p, i) => {
+      const angle = (i / b.N) * Math.PI * 2 - Math.PI / 2;
+      return {
+        x: b.cx + Math.cos(angle) * b.r * p.v,
+        y: b.cy + Math.sin(angle) * b.r * p.v,
+      };
+    });
+
+    const n = coords.length;
+    ctx.beginPath();
+
+    for (let i = 0; i < n; i++) {
+      const p0 = coords[(i - 1 + n) % n];
+      const p1 = coords[i];
+      const p2 = coords[(i + 1) % n];
+      const p3 = coords[(i + 2) % n];
+
+      // Catmull-Rom → cubic bezier control points (tension = 1/6)
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+      if (i === 0) ctx.moveTo(p1.x, p1.y);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
+
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(${b.color}, ${b.alpha})`;
+    ctx.lineWidth   = b.lw;
+    ctx.stroke();
+  }
+
+  // ── State persistence across page navigations ─────────────────────
+  const STORE_KEY = 'bgState';
+
+  function saveState() {
+    try {
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({
+        glows: glows.map(g => ({ x: g.x, y: g.y, vx: g.vx, vy: g.vy, r: g.r, alpha: g.alpha, baseAlpha: g.baseAlpha, dAlpha: g.dAlpha })),
+        blobs: blobs.map(b => ({
+          cx: b.cx, cy: b.cy, vx: b.vx, vy: b.vy,
+          r: b.r, N: b.N, alpha: b.alpha, lw: b.lw, color: b.color,
+          pts: b.pts.map(p => ({ v: p.v, dv: p.dv })),
+        })),
+      }));
+    } catch (_) {}
+  }
+
+  function restoreState() {
+    try {
+      const raw = sessionStorage.getItem(STORE_KEY);
+      if (!raw) return false;
+      const s = JSON.parse(raw);
+      if (s.glows && s.glows.length === GLOW_COUNT) glows = s.glows;
+      if (s.blobs && s.blobs.length === BLOB_COUNT)
+        blobs = s.blobs.map(b => ({ ...b, paired: null }));
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // ── Init + loop ───────────────────────────────────────────────────
+  function init() {
+    glows = Array.from({ length: GLOW_COUNT }, makeGlow);
+    blobs = Array.from({ length: BLOB_COUNT }, makeBlob);
+    restoreState();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    for (const g of glows) updateDrawGlow(g);
+    updateBlobs();
+    for (const b of blobs) drawBlob(b);
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('beforeunload', saveState);
+  window.addEventListener('resize', () => { resize(); init(); });
+  resize();
+  init();
+  draw();
+})();
+</script>
 
 </body>
 </html>
